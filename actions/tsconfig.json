@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "tsconfig",
+    "lib": ["ES2022"],
+    "module": "CommonJS",
+    "types": ["node"],
+    "target": "ES6",
+    "sourceMap": false,
+    "declarationMap": false
+  },
+  "include": ["**/*"]
+}

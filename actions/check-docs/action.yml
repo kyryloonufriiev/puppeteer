@@ -1,0 +1,5 @@
+name: 'Check Docs'
+description: 'Check if auto-generated documents differ'
+runs:
+  using: 'node16'
+  main: './index.js'

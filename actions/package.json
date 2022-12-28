@@ -1,0 +1,24 @@
+{
+  "name": "@puppeteer/actions",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Custom Puppeteer actions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/puppeteer/puppeteer/tree/main/actions"
+  },
+  "scripts": {
+    "build": "wireit"
+  },
+  "wireit": {
+    "build": {
+      "command": "tsc -p ./tsconfig.json",
+      "files": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@actions/core": "1.10.0"
+  }
+}
