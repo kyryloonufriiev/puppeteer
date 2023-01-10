@@ -1,0 +1,37 @@
+on:
+  workflow_call:
+    outputs:
+      packages:
+        description: "Packages that were changed"
+        value: ${{ jobs.packages.outputs.packages }}
+
+jobs:
+  inspect-code:
+    name: Inspect code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/setup.yml@split-ci
+      - name: Check code
+        run: npm run check
+      - name: Lint code
+        run: npm run lint
+      - name: Lint commits
+        if: github.event_name != 'pull_request'
+        run: npm run commitlint
+
+  changed-packages:
+    name: Get packages that were changed
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+    steps:
+      - uses: ./.github/workflows/setup.yml@split-ci
+        with:
+          fetch-depth: 2
+      - name: Build actions
+        run: npm run build --workspace=@puppeteer/actions
+      - name: Get Diff Step
+        id: packages
+        uses: ./actions/changed-packages
+      - name: Check Documents
+        uses: ./actions/check-docs

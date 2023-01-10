@@ -16,58 +16,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  inspect-code:
-    name: Inspect code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3.0.2
-        with:
-          fetch-depth: 2
-      - name: Set up Node.js
-        uses: actions/setup-node@v3.5.1
-        with:
-          cache: npm
-          node-version: latest
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
-      - name: Check code
-        run: npm run check
-      - name: Lint code
-        run: npm run lint
-      - name: Lint commits
-        if: github.event_name != 'pull_request'
-        run: npm run commitlint
-
-  changed-packages:
-    name: Get packages that were changed
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.packages.outputs.packages }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 2
-      - name: Set up Node.js
-        uses: actions/setup-node@v3.5.1
-        with:
-          cache: npm
-          node-version: latest
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
-      - name: Build actions
-        run: npm run build --workspace=@puppeteer/actions
-      - name: Get Diff Step
-        id: packages
-        uses: ./actions/changed-packages
-      - name: Check Documents
-        uses: ./actions/check-docs
+  main:
+    uses: ./.github/workflows/main.yml@split-ci
 
   deploy-docs:
     name: Deploy docs (if needed)
-    needs: changed-packages
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'website' ) && github.event_name != 'pull_request' }}
+    needs: main
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'website' ) && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -105,8 +60,8 @@ jobs:
 
   chrome-tests:
     name: ${{ matrix.suite }} tests on ${{ matrix.os }}
-    needs: changed-packages
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'puppeteer' ) }}
+    needs: main
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'puppeteer' ) }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -156,8 +111,8 @@ jobs:
 
   firefox-tests:
     name: ${{ matrix.suite }} tests on ${{ matrix.os }}
-    needs: changed-packages
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'puppeteer' ) }}
+    needs: main
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'puppeteer' ) }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -204,8 +159,8 @@ jobs:
 
   installation-test-build:
     name: Build installation test
-    needs: changed-packages
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'puppeteer' ) && !startsWith(github.ref_name, 'release-please') }}
+    needs: main
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'puppeteer' ) && !startsWith(github.ref_name, 'release-please') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -271,7 +226,7 @@ jobs:
 
   docker-tests:
     name: Test Docker image
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'docker' ) }}
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'docker' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -300,7 +255,7 @@ jobs:
 
   ng-schematics-tests:
     name: Test Angular Schematics
-    if: ${{ contains( fromJSON(needs.changed-packages.outputs.packages), 'ng-schematics' ) }}
+    if: ${{ contains( fromJSON(needs.main.outputs.packages), 'ng-schematics' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
