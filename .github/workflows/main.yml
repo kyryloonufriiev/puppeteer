@@ -2,7 +2,7 @@ on:
   workflow_call:
     outputs:
       packages:
-        description: "Packages that were changed"
+        description: 'Packages that were changed'
         value: ${{ jobs.packages.outputs.packages }}
 
 jobs:

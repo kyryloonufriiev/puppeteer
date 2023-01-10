@@ -1,11 +1,11 @@
 name: 'Set Up'
 description: 'Set up repository for running other actions'
 inputs:
-  fetch-depth: 
+  fetch-depth:
     description: 'How deep to pull repo'
-    default: "1"
+    default: '1'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Check out repository
       uses: actions/checkout@v3.1.0
@@ -17,5 +17,5 @@ runs:
         cache: npm
         node-version: latest
     - name: Install dependencies
-      shell: "bash"
+      shell: 'bash'
       run: npm ci --ignore-scripts
